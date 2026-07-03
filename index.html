@@ -136,9 +136,15 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <div class="card">
       <p class="eyebrow">Análisis con IA · abogado laboralista</p>
       <div class="fld"><label>Código de expediente</label><input id="a_codigo" placeholder="RAP-2026-0001"></div>
-      <div class="fld"><label>Informe / hechos a analizar</label><textarea id="a_texto" rows="9" placeholder="Pega aquí el informe del supervisor tal como llegó. La IA identificará responsables, testigos, gravedad y medida por persona, citando el RIT/RISST de la empresa del caso."></textarea></div>
+      <div class="fld"><label>Informe / hechos a analizar</label><textarea id="a_texto" rows="8" placeholder="Pega aquí el informe del supervisor… o adjúntalo abajo como archivo (PDF, foto o Word). Si adjuntas archivo, puedes dejar este cuadro vacío."></textarea></div>
+      <div class="fld" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn ghost" type="button" onclick="document.getElementById('a_file').click()">📎 Adjuntar informe (PDF / foto / Word)</button>
+        <input type="file" id="a_file" accept="application/pdf,image/*,.doc,.docx" style="display:none" onchange="archivoSel(this)">
+        <span id="a_chip" class="hint" style="display:none;font-weight:600;color:var(--greenD)"></span>
+        <button id="a_quitar" class="pill" style="display:none" type="button" onclick="quitarArchivo()">✕ quitar</button>
+      </div>
       <button class="btn" id="b-analizar" onclick="analizar()">⚖️ Analizar caso</button>
-      <div class="loader" id="l-analizar"><div class="spin"></div>Analizando con el criterio legal (30-60 seg)…</div>
+      <div class="loader" id="l-analizar"><div class="spin"></div>Subiendo y analizando con el criterio legal (1-2 min)…</div>
     </div>
     <div class="card" id="resultado" style="display:none"></div>
   </section>
@@ -241,13 +247,32 @@ async function crear(){
 function g(id){return document.getElementById(id).value.trim();}
 
 // ---- ANALIZAR ----
+let ARCHIVO=null;
+function archivoSel(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>15*1024*1024){alert('El archivo supera 15 MB. Comprímelo o divídelo.');inp.value='';return;}
+  const r=new FileReader();
+  r.onload=()=>{ARCHIVO={nombre:f.name,mime:f.type||'application/pdf',base64:r.result.split(',')[1]};
+    const c=document.getElementById('a_chip');c.textContent='📄 '+f.name;c.style.display='inline';
+    document.getElementById('a_quitar').style.display='inline';};
+  r.readAsDataURL(f);
+}
+function quitarArchivo(){ARCHIVO=null;document.getElementById('a_file').value='';
+  document.getElementById('a_chip').style.display='none';document.getElementById('a_quitar').style.display='none';}
+
 async function analizar(){
   const b=document.getElementById('b-analizar'),l=document.getElementById('l-analizar'),res=document.getElementById('resultado');
   const codigo=g('a_codigo'),texto=g('a_texto');
-  if(!codigo||!texto){alert('Completa el código del expediente y el informe.');return;}
+  if(!codigo||(!texto&&!ARCHIVO)){alert('Completa el código del expediente y pega el informe o adjunta el archivo.');return;}
   b.disabled=true;l.classList.add('show');res.style.display='none';
   try{
-    const ev=await api({accion:'analizarCaso',codigo,texto,usuario:'web'});
+    let ev;
+    if(ARCHIVO){
+      document.querySelector('#l-analizar span')?.remove;
+      ev=await api({accion:'analizarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:'web'});
+    }else{
+      ev=await api({accion:'analizarCaso',codigo,texto,usuario:'web'});
+    }
     res.style.display='block';res.innerHTML=renderEval(ev,false);
     window.scrollTo({top:res.offsetTop-70,behavior:'smooth'});
   }catch(e){res.style.display='block';res.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
