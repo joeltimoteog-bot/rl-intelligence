@@ -83,6 +83,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <button id="t-casos" class="on" onclick="tab('casos')">📋 Casos</button>
     <button id="t-nuevo" onclick="tab('nuevo')">➕ Nuevo caso</button>
     <button id="t-analizar" onclick="tab('analizar')">⚖️ Analizar</button>
+    <button id="t-asesor" onclick="tab('asesor')">💬 Asesor</button>
   </nav>
 
   <!-- CASOS -->
@@ -137,6 +138,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
       <p class="eyebrow">Análisis con IA · abogado laboralista</p>
       <div class="fld"><label>Código de expediente</label><input id="a_codigo" placeholder="RAP-2026-0001"></div>
       <div class="fld"><label>Informe / hechos a analizar</label><textarea id="a_texto" rows="8" placeholder="Pega aquí el informe del supervisor… o adjúntalo abajo como archivo (PDF, foto o Word). Si adjuntas archivo, puedes dejar este cuadro vacío."></textarea></div>
+      <div class="fld"><label>Antecedentes / récord de sanciones (opcional)</label><textarea id="a_record" rows="3" placeholder="Ej.: 12/03/2026 amonestación escrita por tardanza (memorándum 015-2026); 20/04/2026 suspensión 1 día por abandono de puesto. La IA validará la medida sugerida contra este récord (reincidencia = escalamiento; récord limpio = gradualidad)."></textarea></div>
       <div class="fld" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <button class="btn ghost" type="button" onclick="document.getElementById('a_file').click()">📎 Adjuntar informe (PDF / foto / Word)</button>
         <input type="file" id="a_file" accept="application/pdf,image/*,.doc,.docx" style="display:none" onchange="archivoSel(this)">
@@ -149,21 +151,37 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <div class="card" id="resultado" style="display:none"></div>
   </section>
 
+  <!-- ASESOR -->
+  <section id="p-asesor" style="display:none">
+    <div class="card">
+      <p class="eyebrow">Asesor legal del caso · conversa como con un abogado</p>
+      <div class="fld"><label>Código de expediente</label><input id="c_codigo" placeholder="RAP-2026-0002" onchange="MSJS=[];document.getElementById('chat').innerHTML='';"></div>
+      <div id="chat" style="min-height:120px;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px">
+        <textarea id="c_msg" rows="2" style="flex:1" placeholder="Ej.: ¿Qué medida sugieres si ya tiene una suspensión previa? · ¿Procede preaviso o primero suspensión? · Redáctame la respuesta para el supervisor…"></textarea>
+        <button class="btn" id="b-chat" onclick="enviarConsulta()">Enviar</button>
+      </div>
+      <div class="loader" id="l-chat"><div class="spin"></div>El asesor está analizando…</div>
+    </div>
+  </section>
+
   <div class="disc"><b>Borrador asistido — requiere revisión humana.</b> Los análisis apoyan tu criterio; valida cartas de preaviso/despido con un abogado antes de emitir. Datos sensibles bajo Ley 29733 — confidencialidad.</div>
 </div>
 
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbzU4TkAm0jfnGCzB84RwuEfxmsbDPME1MLcfFuHOheBa4bQktmF9Q9Up9ONLvTbli6eeg/exec';
 let TOKEN=localStorage.getItem('rl_token')||'';
+const _urlTok=new URLSearchParams(location.search).get('token');
+if(_urlTok){TOKEN=_urlTok.trim();localStorage.setItem('rl_token',TOKEN);history.replaceState(null,'',location.pathname);}
 
 function pedirToken(){
-  const t=prompt('🔑 Ingresa el API_TOKEN del sistema (Propiedades del script):');
+  const t=prompt('🔑 Ingresa el API_TOKEN del sistema (GAS → Configuración → Propiedades del script). Se guarda en este dispositivo:');
   if(t){TOKEN=t.trim();localStorage.setItem('rl_token',TOKEN);}
 }
 function cambiarToken(){localStorage.removeItem('rl_token');TOKEN='';pedirToken();}
-if(!TOKEN)pedirToken();
 
 async function api(payload){
+  if(!TOKEN)pedirToken();
   payload.token=TOKEN;
   const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
   const j=await r.json();
@@ -175,7 +193,7 @@ async function api(payload){
 }
 
 function tab(t){
-  ['casos','nuevo','analizar'].forEach(x=>{
+  ['casos','nuevo','analizar','asesor'].forEach(x=>{
     document.getElementById('p-'+x).style.display=x===t?'block':'none';
     document.getElementById('t-'+x).classList.toggle('on',x===t);
   });
@@ -269,9 +287,9 @@ async function analizar(){
     let ev;
     if(ARCHIVO){
       document.querySelector('#l-analizar span')?.remove;
-      ev=await api({accion:'analizarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:'web'});
+      ev=await api({accion:'analizarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:'web',antecedentes:g('a_record')});
     }else{
-      ev=await api({accion:'analizarCaso',codigo,texto,usuario:'web'});
+      ev=await api({accion:'analizarCaso',codigo,texto,usuario:'web',antecedentes:g('a_record')});
     }
     res.style.display='block';res.innerHTML=renderEval(ev,false);
     window.scrollTo({top:res.offsetTop-70,behavior:'smooth'});
@@ -296,10 +314,38 @@ function renderEval(ev,guardada){
   h+='<h3>Riesgo legal</h3><p>'+esc(ev.riesgo_legal)+'</p>';
   h+='<h3>Fundamentos</h3><p>'+esc(ev.fundamentos)+'</p>';
   h+='<h3>Conclusión</h3><p>'+esc(ev.conclusion)+'</p>';
-  h+='<h3>Medida recomendada</h3><p><b>'+esc(ev.medida_recomendada)+'</b></p>';
+  if(ev.clasificacion_gravedad)h+='<h3>Clasificación de gravedad</h3><p><b>'+esc(ev.clasificacion_gravedad)+'</b></p>';
+  h+='<h3>Medida sugerida (validar antes de aplicar)</h3><p><b>'+esc(ev.medida_recomendada)+'</b></p>';
+  if(ev.preguntas_al_usuario&&ev.preguntas_al_usuario.length){
+    h+='<h3>El asesor te pregunta 💬</h3><ul>';
+    (Array.isArray(ev.preguntas_al_usuario)?ev.preguntas_al_usuario:[ev.preguntas_al_usuario]).forEach(q=>{h+='<li>'+esc(q)+'</li>';});
+    h+='</ul><p class="hint">Responde en la pestaña 💬 Asesor con el mismo código para afinar la medida.</p>';
+  }
   if(ev.observaciones)h+='<h3>Observaciones</h3><p>'+esc(ev.observaciones)+'</p>';
   h+='</div>';
   return h;
+}
+
+// ---- ASESOR ----
+let MSJS=[];
+function burbuja(rol,txt){
+  const c=document.getElementById('chat');
+  const d=document.createElement('div');
+  d.style.cssText='margin:6px 0;padding:9px 12px;border-radius:11px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;max-width:85%;'+
+    (rol==='user'?'background:var(--ink);color:var(--paper);margin-left:auto':'background:var(--paper);border:1px solid var(--line)');
+  d.textContent=txt;c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+async function enviarConsulta(){
+  const codigo=g('c_codigo'),msg=g('c_msg');
+  if(!codigo||!msg){alert('Pon el código del expediente y tu consulta.');return;}
+  const b=document.getElementById('b-chat'),l=document.getElementById('l-chat');
+  burbuja('user',msg);MSJS.push({role:'user',content:msg});
+  document.getElementById('c_msg').value='';b.disabled=true;l.classList.add('show');
+  try{
+    const r=await api({accion:'consultar',codigo,mensajes:MSJS,usuario:'web'});
+    burbuja('assistant',r.respuesta);MSJS.push({role:'assistant',content:r.respuesta});
+  }catch(e){burbuja('assistant','⚠️ '+e.message);}
+  finally{b.disabled=false;l.classList.remove('show');}
 }
 
 cargarCasos();
