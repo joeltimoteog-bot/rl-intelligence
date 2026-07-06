@@ -72,17 +72,20 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 </head>
 <body>
 <div class="login" id="login" style="display:none;position:fixed;inset:0;z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:28px 12px;background:radial-gradient(900px 500px at 50% -10%,rgba(47,197,122,.25),transparent 70%),radial-gradient(700px 400px at 90% 110%,rgba(163,177,196,.12),transparent 70%),#0b0d12">
-  <div style="width:min(92vw,380px);margin:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)">
+  <div style="width:min(92vw,380px);margin:auto;max-height:92vh;max-height:calc(100dvh - 36px);overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)">
     <div style="text-align:center"><img src="logo.png" alt="logo" style="width:100px;height:100px;border-radius:22px;object-fit:cover" onerror="this.style.display='none'"></div>
     <h2 style="font:700 20px 'Spectral',serif;margin:14px 0 4px;text-align:center"><b>Sistema de Investigación de Casos</b></h2>
     <p style="font:400 13px 'Inter';color:var(--soft);margin:0 0 16px;text-align:center">Investigación laboral con IA</p>
+    <div id="lg_form">
     <label>Usuario</label><input id="lg_usuario" placeholder="jtimoteo" autocomplete="username" onkeydown="if(event.key==='Enter')hacerLogin()">
     <div style="height:10px"></div>
     <label>Contraseña</label><input id="lg_clave" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')hacerLogin()">
     <div style="height:16px"></div>
     <button class="btn" id="lg_btn" style="width:100%;justify-content:center" onclick="hacerLogin()">Ingresar</button>
-    <p style="text-align:center;margin:12px 0 0"><a href="#" onclick="const s=document.getElementById('solic');s.style.display='block';setTimeout(()=>s.scrollIntoView({behavior:'smooth',block:'start'}),80);return false" style="color:var(--green);font:600 12.5px 'Inter';text-decoration:none">¿Aún no tienes acceso? Solicítalo aquí</a></p>
+    </div>
+    <p id="lg_link" style="text-align:center;margin:12px 0 0"><a href="#" onclick="verSolicitud();return false" style="color:var(--green);font:600 12.5px 'Inter';text-decoration:none">¿Aún no tienes acceso? Solicítalo aquí</a></p>
     <div id="solic" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+      <p style="margin:0 0 10px"><a href="#" onclick="verIngreso();return false" style="color:var(--soft);font:600 12px 'Inter';text-decoration:none">← Volver al ingreso</a></p>
       <label>Tu nombre</label><input id="s_nombre">
       <div style="height:8px"></div>
       <label>Empresa</label><input id="s_empresa">
@@ -315,6 +318,16 @@ let _modalRes=null;
 function pedirDato(titulo,def){return new Promise(res=>{_modalRes=res;document.getElementById('modalTit').textContent=titulo;const v=document.getElementById('modalVal');v.value=def||'';document.getElementById('modalIn').style.display='flex';setTimeout(()=>v.focus(),60);});}
 function _modalOk(){document.getElementById('modalIn').style.display='none';const r=_modalRes;_modalRes=null;if(r)r(document.getElementById('modalVal').value);}
 function _modalCancel(){document.getElementById('modalIn').style.display='none';const r=_modalRes;_modalRes=null;if(r)r(null);}
+function verSolicitud(){
+  document.getElementById('lg_form').style.display='none';
+  document.getElementById('lg_link').style.display='none';
+  document.getElementById('solic').style.display='block';
+}
+function verIngreso(){
+  document.getElementById('solic').style.display='none';
+  document.getElementById('lg_form').style.display='';
+  document.getElementById('lg_link').style.display='';
+}
 async function enviarSolicitud(){
   const n=g('s_nombre'),c=g('s_contacto');
   if(!n||!c){aviso('Completa tu nombre y un contacto.');return;}
@@ -322,7 +335,7 @@ async function enviarSolicitud(){
     const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'solicitarAcceso',nombre:n,empresa:g('s_empresa'),contacto:c,mensaje:g('s_msj')})});
     const j=await r.json();if(!j.ok)throw new Error(j.error);
     aviso('✅ Solicitud enviada. Te contactaremos pronto.');
-    document.getElementById('solic').style.display='none';
+    verIngreso();
   }catch(e){aviso('⚠️ '+e.message);}
 }
 function llenarEmpresas(){
