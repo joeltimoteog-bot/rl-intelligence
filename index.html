@@ -165,6 +165,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
         <textarea id="c_msg" rows="2" style="flex:1" placeholder="Ej.: ¿Qué medida sugieres si ya tiene una suspensión previa? · ¿Procede preaviso o primero suspensión? · Redáctame la respuesta para el supervisor…"></textarea>
         <button class="btn" id="b-chat" onclick="enviarConsulta()">Enviar</button>
       </div>
+      <div style="margin-top:10px"><button class="btn ghost" onclick="exposicionGerencia()">📊 Exposición para gerencia</button></div>
       <div class="loader" id="l-chat"><div class="spin"></div>El asesor está analizando…</div>
     </div>
   </section>
@@ -417,6 +418,18 @@ async function enviarConsulta(){
     burbuja('assistant',r.respuesta);MSJS.push({role:'assistant',content:r.respuesta});
   }catch(e){burbuja('assistant','⚠️ '+e.message);}
   finally{b.disabled=false;l.classList.remove('show');}
+}
+async function exposicionGerencia(){
+  const codigo=g('c_codigo');
+  if(!codigo){alert('Pon el código del expediente para preparar la exposición.');return;}
+  const l=document.getElementById('l-chat');l.classList.add('show');
+  burbuja('user','Prepárame la exposición del caso '+codigo+' para jefaturas y gerencia.');
+  MSJS.push({role:'user',content:'Prepárame la exposición del caso para jefaturas y gerencia.'});
+  try{
+    const r=await api({accion:'exposicion',codigo,usuario:'web'});
+    burbuja('assistant',r.respuesta);MSJS.push({role:'assistant',content:r.respuesta});
+  }catch(e){burbuja('assistant','⚠️ '+e.message);}
+  finally{l.classList.remove('show');}
 }
 
 cargarCasos();
