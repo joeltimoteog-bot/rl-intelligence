@@ -71,8 +71,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 </style>
 </head>
 <body>
-<div class="login" id="login" style="display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 50% -10%,rgba(47,197,122,.25),transparent 70%),radial-gradient(700px 400px at 90% 110%,rgba(163,177,196,.12),transparent 70%),#0b0d12">
-  <div style="width:min(92vw,380px);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)">
+<div class="login" id="login" style="display:none;position:fixed;inset:0;z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:28px 12px;background:radial-gradient(900px 500px at 50% -10%,rgba(47,197,122,.25),transparent 70%),radial-gradient(700px 400px at 90% 110%,rgba(163,177,196,.12),transparent 70%),#0b0d12">
+  <div style="width:min(92vw,380px);margin:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)">
     <div style="text-align:center"><img src="logo.png" alt="logo" style="width:100px;height:100px;border-radius:22px;object-fit:cover" onerror="this.style.display='none'"></div>
     <h2 style="font:700 20px 'Spectral',serif;margin:14px 0 4px;text-align:center"><b>Sistema de Investigación de Casos</b></h2>
     <p style="font:400 13px 'Inter';color:var(--soft);margin:0 0 16px;text-align:center">Investigación laboral con IA</p>
@@ -81,7 +81,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <label>Contraseña</label><input id="lg_clave" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')hacerLogin()">
     <div style="height:16px"></div>
     <button class="btn" id="lg_btn" style="width:100%;justify-content:center" onclick="hacerLogin()">Ingresar</button>
-    <p style="text-align:center;margin:12px 0 0"><a href="#" onclick="document.getElementById('solic').style.display='block';return false" style="color:var(--green);font:600 12.5px 'Inter';text-decoration:none">¿Aún no tienes acceso? Solicítalo aquí</a></p>
+    <p style="text-align:center;margin:12px 0 0"><a href="#" onclick="const s=document.getElementById('solic');s.style.display='block';setTimeout(()=>s.scrollIntoView({behavior:'smooth',block:'start'}),80);return false" style="color:var(--green);font:600 12.5px 'Inter';text-decoration:none">¿Aún no tienes acceso? Solicítalo aquí</a></p>
     <div id="solic" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
       <label>Tu nombre</label><input id="s_nombre">
       <div style="height:8px"></div>
