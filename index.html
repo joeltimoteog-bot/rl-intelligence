@@ -145,7 +145,11 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
         <span id="a_chip" class="hint" style="display:none;font-weight:600;color:var(--greenD)"></span>
         <button id="a_quitar" class="pill" style="display:none" type="button" onclick="quitarArchivo()">✕ quitar</button>
       </div>
-      <button class="btn" id="b-analizar" onclick="analizar()">⚖️ Analizar caso</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="b-investigar" onclick="investigar()">🔍 1· Investigar expediente</button>
+        <button class="btn ghost" id="b-analizar" onclick="analizar()">⚖️ 2· Análisis jurídico</button>
+      </div>
+      <p class="hint" style="margin-top:8px">Flujo recomendado: primero <b>Investigar</b> (extrae personas, cronología, evidencias y audita el informe sin juzgar) y luego <b>Análisis jurídico</b> (opinión técnica y medida).</p>
       <div class="loader" id="l-analizar"><div class="spin"></div>Subiendo y analizando con el criterio legal (1-2 min)…</div>
     </div>
     <div class="card" id="resultado" style="display:none"></div>
@@ -155,7 +159,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
   <section id="p-asesor" style="display:none">
     <div class="card">
       <p class="eyebrow">Asesor legal del caso · conversa como con un abogado</p>
-      <div class="fld"><label>Código de expediente</label><input id="c_codigo" placeholder="RAP-2026-0002" onchange="MSJS=[];document.getElementById('chat').innerHTML='';"></div>
+      <div class="fld"><label>Código de expediente (opcional — déjalo vacío para conversar en general)</label><input id="c_codigo" placeholder="RAP-2026-0002 o vacío" onchange="MSJS=[];document.getElementById('chat').innerHTML='';saludoAsesor();"></div>
       <div id="chat" style="min-height:120px;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px"></div>
       <div style="display:flex;gap:8px">
         <textarea id="c_msg" rows="2" style="flex:1" placeholder="Ej.: ¿Qué medida sugieres si ya tiene una suspensión previa? · ¿Procede preaviso o primero suspensión? · Redáctame la respuesta para el supervisor…"></textarea>
@@ -197,6 +201,16 @@ function tab(t){
     document.getElementById('p-'+x).style.display=x===t?'block':'none';
     document.getElementById('t-'+x).classList.toggle('on',x===t);
   });
+  if(t==='asesor')saludoAsesor();
+}
+function saludoAsesor(){
+  const c=document.getElementById('chat');
+  if(c.children.length)return;
+  const h=new Date().getHours();
+  const s=h<12?'Buenos días':(h<19?'Buenas tardes':'Buenas noches');
+  const cod=g('c_codigo');
+  const ap=s+', Joel. 👋 Aquí tu colega de despacho, listo. '+(cod?('Tengo el expediente '+cod+' a la mano — ¿lo revisamos?'):'¿Qué caso vemos hoy? Pon el código del expediente arriba, o cuéntame en general y lo conversamos entre abogados.');
+  burbuja('assistant',ap);MSJS.push({role:'assistant',content:ap});
 }
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
@@ -326,6 +340,63 @@ function renderEval(ev,guardada){
   return h;
 }
 
+// ---- INVESTIGAR (FASE 1) ----
+async function investigar(){
+  const b=document.getElementById('b-investigar'),l=document.getElementById('l-analizar'),res=document.getElementById('resultado');
+  const codigo=g('a_codigo'),texto=g('a_texto');
+  if(!codigo||(!texto&&!ARCHIVO)){alert('Completa el código del expediente y pega el informe o adjunta el archivo.');return;}
+  b.disabled=true;l.classList.add('show');res.style.display='none';
+  document.querySelector('#l-analizar').lastElementChild&&(document.querySelector('#l-analizar').lastElementChild.textContent='Investigando el expediente (extracción y auditoría)…');
+  try{
+    let inv;
+    if(ARCHIVO){inv=await api({accion:'investigarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:'web',antecedentes:g('a_record')});}
+    else{inv=await api({accion:'investigar',codigo,texto,usuario:'web',antecedentes:g('a_record')});}
+    res.style.display='block';res.innerHTML=renderInvestigacion(inv,codigo);
+    window.scrollTo({top:res.offsetTop-70,behavior:'smooth'});
+  }catch(e){res.style.display='block';res.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
+  finally{b.disabled=false;l.classList.remove('show');}
+}
+function _arr(x){return Array.isArray(x)?x:(x?[x]:[]);}
+function renderInvestigacion(inv,codigo){
+  const au=inv.auditoria||{},ex=inv.expediente||{};
+  const conf=String(au.nivel_confianza||'').toUpperCase();
+  const confCls=conf==='ALTO'?'BAJO':(conf==='BAJO'?'ALTO':'MEDIO'); // color: confianza alta=verde
+  let h='<div class="ev"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+    '<p class="eyebrow" style="margin:0">🔍 Investigación del expediente '+esc(codigo)+'</p>'+
+    (conf?'<span class="badge '+confCls+'">Confianza del expediente: '+esc(conf)+'</span>':'')+'</div>';
+  const cal=au.calidad_informe||{};
+  if(cal.nota_0_a_100!==undefined)h+='<h3>Calidad del informe del supervisor</h3><p><b>'+esc(cal.nota_0_a_100)+'/100</b> — '+esc(cal.sustento||'')+'</p>';
+  const hall=_arr(inv.hallazgos);
+  if(hall.length){h+='<h3>Hallazgos ('+hall.length+')</h3>';
+    hall.forEach(x=>{h+='<div class="persona"'+(x.podria_cambiar_la_decision?' style="border-left-color:var(--red)"':'')+'><b>'+esc(x.titulo)+'</b>'+(x.podria_cambiar_la_decision?' ⚠️ <i>podría cambiar la decisión</i>':'')+'<br>'+esc(x.detalle)+'</div>';});}
+  const per=_arr(ex.personas);
+  if(per.length){h+='<h3>Personas identificadas</h3>';per.forEach(p=>{h+='<div class="persona"><b>'+esc(p.nombre)+'</b> — '+esc(p.rol)+(p.cargo?' · '+esc(p.cargo):'')+(p.dni?' · DNI '+esc(p.dni):'')+(p.declaracion?'<br><i>Declaró:</i> '+esc(p.declaracion):'')+'</div>';});}
+  const cro=_arr(ex.cronologia);
+  if(cro.length){h+='<h3>Cronología</h3><ul>';cro.forEach(c=>{h+='<li><b>'+esc(c.fecha||'')+' '+esc(c.hora||'')+'</b> — '+esc(c.hecho)+(c.fuente?' <i>('+esc(c.fuente)+')</i>':'')+'</li>';});h+='</ul>';}
+  const evd=_arr(ex.evidencias);
+  if(evd.length){h+='<h3>Evidencias</h3><ul>';evd.forEach(e2=>{h+='<li>'+esc(e2.tipo)+': '+esc(e2.descripcion)+' <i>('+esc(e2.estado||'')+')</i></li>';});h+='</ul>';}
+  const con=_arr(au.contradicciones);
+  if(con.length){h+='<h3>⚠️ Contradicciones</h3><ul>';con.forEach(c=>{h+='<li>'+esc(c.descripcion)+(c.entre_quienes?' — <i>'+esc(c.entre_quienes)+'</i>':'')+'</li>';});h+='</ul>';}
+  const vac=_arr(au.vacios).concat(_arr(au.documentos_faltantes)).concat(_arr(au.entrevistas_faltantes));
+  if(vac.length){h+='<h3>Vacíos y faltantes</h3><ul>';vac.forEach(v=>{h+='<li>'+esc(typeof v==='string'?v:JSON.stringify(v))+'</li>';});h+='</ul>';}
+  const errs=_arr(au.errores_del_supervisor).concat(_arr(au.errores_de_procedimiento));
+  if(errs.length){h+='<h3>Errores detectados (informe / procedimiento)</h3><ul>';errs.forEach(v=>{h+='<li>'+esc(typeof v==='string'?v:JSON.stringify(v))+'</li>';});h+='</ul>';}
+  if(inv.conclusion_preliminar)h+='<h3>Conclusión preliminar</h3><p>'+esc(inv.conclusion_preliminar)+'</p>';
+  const pre=_arr(inv.preguntas_al_usuario);
+  if(pre.length){h+='<h3>El investigador te pregunta 💬</h3><ul>';pre.forEach(q=>{h+='<li>'+esc(q)+'</li>';});h+='</ul>';}
+  h+='<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">'+
+     '<button class="btn" onclick="irAsesor(\''+esc(codigo)+'\','+hall.filter(x=>x.podria_cambiar_la_decision).length+')">💬 Revisar hallazgos con el asesor</button>'+
+     '<button class="btn ghost" onclick="analizar()">⚖️ Pasar al análisis jurídico</button></div></div>';
+  return h;
+}
+function irAsesor(codigo,nCriticos){
+  document.getElementById('c_codigo').value=codigo;
+  MSJS=[];document.getElementById('chat').innerHTML='';
+  const apertura='He terminado de revisar el expediente '+codigo+'. '+(nCriticos>0?'Encontré '+nCriticos+' hallazgo(s) que podrían modificar la decisión. ¿Deseas que los revisemos uno por uno?':'El expediente está razonablemente completo. ¿Qué aspecto quieres revisar primero?');
+  burbuja('assistant',apertura);MSJS.push({role:'assistant',content:apertura});
+  tab('asesor');
+}
+
 // ---- ASESOR ----
 let MSJS=[];
 function burbuja(rol,txt){
@@ -337,7 +408,7 @@ function burbuja(rol,txt){
 }
 async function enviarConsulta(){
   const codigo=g('c_codigo'),msg=g('c_msg');
-  if(!codigo||!msg){alert('Pon el código del expediente y tu consulta.');return;}
+  if(!msg){alert('Escribe tu consulta.');return;}
   const b=document.getElementById('b-chat'),l=document.getElementById('l-chat');
   burbuja('user',msg);MSJS.push({role:'user',content:msg});
   document.getElementById('c_msg').value='';b.disabled=true;l.classList.add('show');
