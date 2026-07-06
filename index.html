@@ -244,7 +244,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
         <div class="fld"><label>Rol</label><select id="u_rol"><option value="USUARIO">USUARIO</option><option value="ADMIN">ADMIN</option></select></div>
       </div>
       <div class="fld"><label>Contraseña (mínimo 8 caracteres)</label><input id="u_clave" type="password" placeholder="••••••••"></div>
-      <div class="fld"><label>Acceso</label><select id="u_dias"><option value="0">Sin límite (licencia)</option><option value="2">Prueba: 2 días</option><option value="7">Prueba: 7 días</option><option value="15">Prueba: 15 días</option><option value="30">Prueba: 30 días</option></select></div>
+      <div class="grid2">
+        <div class="fld"><label>Acceso</label><select id="u_dias"><option value="0">Sin límite (licencia)</option><option value="2">Prueba: 2 días</option><option value="7">Prueba: 7 días</option><option value="15">Prueba: 15 días</option><option value="30">Prueba: 30 días</option></select></div>
+        <div class="fld"><label>Puede ver casos de</label><select id="u_empresas"><option value="TODAS">TODAS las empresas</option></select></div>
+      </div>
       <button class="btn" id="b-user" onclick="crearUsuarioUI()">👥 Registrar usuario</button>
       <p id="r-user" style="margin-top:8px"></p>
     </div>
@@ -350,7 +353,7 @@ function tab(t){
     document.getElementById('t-'+x).classList.toggle('on',x===t);
   });
   if(t==='asesor')saludoAsesor();
-  if(t==='usuarios'){cargarUsuarios();cargarEmpresasUI();cargarSolicitudes();}
+  if(t==='usuarios'){cargarUsuarios();cargarEmpresasUI();cargarSolicitudes();llenarEmpresasUserSel();}
 }
 function saludoAsesor(){
   const c=document.getElementById('chat');
@@ -410,11 +413,17 @@ async function cargarUsuarios(){
       d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(u.nombre)+' <span class="hint">('+esc(u.usuario)+')</span></span>'+
         '<span style="display:flex;gap:8px;align-items:center"><span class="tag '+(u.activo?'ENANALISIS':'CERRADO')+'">'+(u.activo?'ACTIVO':'INACTIVO')+'</span>'+
         '<button class="pill" onclick="toggleUsuario(\''+esc(u.usuario)+'\','+(!u.activo)+')">'+(u.activo?'Desactivar':'Activar')+'</button></span></div>'+
-        '<div class="c-meta">Rol: '+esc(u.rol)+(u.vence?' · ⏳ Prueba hasta '+esc(u.vence):' · Licencia sin límite')+' · <a href="#" onclick="renovarUsuario(\''+esc(u.usuario)+'\');return false" style="color:var(--green)">renovar/licenciar</a></div>';
+        '<div class="c-meta">Rol: '+esc(u.rol)+' · 👁️ '+esc(u.empresas||'TODAS')+(u.vence?' · ⏳ Prueba hasta '+esc(u.vence):' · Licencia sin límite')+' · <a href="#" onclick="renovarUsuario(\''+esc(u.usuario)+'\');return false" style="color:var(--green)">renovar/licenciar</a></div>';
       box.appendChild(d);
     });
   }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
   finally{l.classList.remove('show');}
+}
+function llenarEmpresasUserSel(){
+  const sel=document.getElementById('u_empresas');if(!sel)return;
+  let es=[];try{es=JSON.parse(localStorage.getItem('rl_empresas')||'[]');}catch(e){}
+  sel.innerHTML='<option value="TODAS">TODAS las empresas</option>';
+  es.forEach(e=>{const o=document.createElement('option');o.value=e.nombre;o.textContent='Solo '+e.nombre;sel.appendChild(o);});
 }
 async function crearUsuarioUI(){
   const r=document.getElementById('r-user'),b=document.getElementById('b-user');
@@ -423,7 +432,7 @@ async function crearUsuarioUI(){
   if(clave.length<8){r.innerHTML='<span class="err">La contraseña debe tener al menos 8 caracteres.</span>';return;}
   b.disabled=true;r.textContent='';
   try{
-    await api({accion:'crearUsuarioAdmin',usuario_nuevo:user,clave:clave,nombre:nombre,rol:rol,dias_prueba:g('u_dias')});
+    await api({accion:'crearUsuarioAdmin',usuario_nuevo:user,clave:clave,nombre:nombre,rol:rol,dias_prueba:g('u_dias'),empresas_acceso:g('u_empresas')});
     r.innerHTML='<span class="ok">✅ Usuario '+esc(user)+' registrado. Ya puede iniciar sesión.</span>';
     ['u_user','u_nombre','u_clave'].forEach(i=>document.getElementById(i).value='');
     cargarUsuarios();
