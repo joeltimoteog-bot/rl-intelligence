@@ -40,7 +40,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 .searchrow{display:flex;gap:10px;margin-bottom:14px}
 .searchrow input{flex:1}
 .caso{border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin:9px 0;background:#171c28;cursor:pointer;transition:.13s}
-.caso:hover{border-color:var(--green)}
+.caso:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.35)}
 .c-top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 .c-cod{font:700 13.5px 'Inter';color:var(--ink)}
 .c-meta{font:500 12px 'Inter';color:var(--soft);margin-top:3px}
@@ -83,10 +83,31 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <button class="btn" id="lg_btn" style="width:100%;justify-content:center" onclick="hacerLogin()">Ingresar</button>
   </div>
 </div>
+<div id="guia" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px">
+  <div class="card" style="max-width:660px;max-height:86vh;overflow-y:auto;margin:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <p class="eyebrow" style="margin:0">❓ Guía del sistema</p>
+      <button class="pill" onclick="document.getElementById('guia').style.display='none'">✕ Cerrar</button>
+    </div>
+    <div class="ev">
+      <h3>Qué es este sistema</h3>
+      <p>Un asistente de <b>investigación laboral con IA</b> que construye expedientes, audita informes, evalúa jurídicamente los casos y conversa contigo como un abogado laboralista para llegar a la medida disciplinaria correcta.</p>
+      <h3>El marco legal ya viene incorporado</h3>
+      <p>Todos los análisis se anclan a la <b>ley peruana</b>: D.S. 003-97-TR (régimen general), <b>Ley 31110</b> (régimen agrario), Ley 29783 (seguridad y salud) y Ley 27942 (hostigamiento). El sistema respeta el debido proceso: preaviso con mínimo 6 días naturales de descargo, inmediatez, proporcionalidad, gradualidad y non bis in idem, con la escala LEVE / GRAVE / MUY GRAVE / CRÍTICO.</p>
+      <h3>Tu Reglamento Interno es la otra mitad</h3>
+      <p>La IA cita el <b>RIT</b> (disciplina) y el <b>RISST</b> (seguridad y salud) de cada empresa registrada. El administrador los carga una sola vez: sube los PDF a Google Drive con los nombres <b>RIT-EMPRESA</b> y <b>RISST-EMPRESA</b> y ejecuta la extracción. Desde ese momento, cada análisis verifica la tipicidad artículo por artículo contra TU reglamento — nunca inventa incisos.</p>
+      <h3>Flujo recomendado</h3>
+      <p><b>1.</b> ➕ Crea el expediente (o llega solo desde el buzón automático). <b>2.</b> 🔍 <b>Investigar</b>: la IA extrae personas, declaraciones, cronología y evidencias, detecta contradicciones y vacíos, y califica el informe del supervisor. <b>3.</b> 💬 <b>Asesor</b>: conversa, responde sus preguntas, deja que te pida lo que falta para cerrar. <b>4.</b> ⚖️ <b>Análisis jurídico</b>: tipificación, riesgo y medida sugerida validada contra el récord de sanciones. <b>5.</b> 📊 <b>Exposición para gerencia</b> con un clic.</p>
+      <h3>Importante</h3>
+      <p>Toda medida es una <b>sugerencia asistida</b>: la decisión final es humana y las cartas de cese deben validarse con un abogado. Los datos disciplinarios son sensibles bajo la <b>Ley 29733</b> — trátalos con confidencialidad.</p>
+    </div>
+  </div>
+</div>
 <header><div class="bar">
   <img src="logo.png" alt="logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover" onerror="this.style.display='none'">
   <div class="brand"><h1 style="font-weight:700">Sistema de Investigación de Casos</h1></div>
   <div class="spacer"></div>
+  <button class="pill" onclick="document.getElementById('guia').style.display='flex'">❓ Guía</button>
   <button class="pill" id="userPill" onclick="salir()" style="display:none"></button>
 </div></header>
 
@@ -97,6 +118,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <button id="t-nuevo" onclick="tab('nuevo')">➕ Nuevo caso</button>
     <button id="t-analizar" onclick="tab('analizar')">⚖️ Analizar</button>
     <button id="t-asesor" onclick="tab('asesor')">💬 Asesor</button>
+    <button id="t-usuarios" onclick="tab('usuarios')" style="display:none">👥 Usuarios</button>
   </nav>
 
   <!-- CASOS -->
@@ -119,7 +141,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <div class="card">
       <p class="eyebrow">Registrar nuevo caso</p>
       <div class="grid3">
-        <div class="fld"><label>Empresa</label><select id="n_empresa"><option>RAPEL</option><option>VERFRUT</option></select></div>
+        <div class="fld"><label>Empresa</label><select id="n_empresa"></select></div>
         <div class="fld"><label>Régimen</label><select id="n_regimen"><option value="agrario">Agrario (Ley 31110)</option><option value="general">General (D.S. 003-97-TR)</option></select></div>
         <div class="fld"><label>Tipo de falta</label><select id="n_falta"><option>Tardanza</option><option>Inasistencia</option><option>Abandono de puesto</option><option>Indisciplina</option><option>Daño a propiedad</option><option>Seguridad y salud</option><option>Otro</option></select></div>
       </div>
@@ -183,6 +205,37 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     </div>
   </section>
 
+  <!-- USUARIOS (solo ADMIN) -->
+  <section id="p-usuarios" style="display:none">
+    <div class="card">
+      <p class="eyebrow">Registrar nuevo usuario</p>
+      <div class="grid3">
+        <div class="fld"><label>Usuario</label><input id="u_user" placeholder="ovilela"></div>
+        <div class="fld"><label>Nombre completo</label><input id="u_nombre" placeholder="Oscar Vilela"></div>
+        <div class="fld"><label>Rol</label><select id="u_rol"><option value="USUARIO">USUARIO</option><option value="ADMIN">ADMIN</option></select></div>
+      </div>
+      <div class="fld"><label>Contraseña (mínimo 8 caracteres)</label><input id="u_clave" type="password" placeholder="••••••••"></div>
+      <div class="fld"><label>Acceso</label><select id="u_dias"><option value="0">Sin límite (licencia)</option><option value="2">Prueba: 2 días</option><option value="7">Prueba: 7 días</option><option value="15">Prueba: 15 días</option><option value="30">Prueba: 30 días</option></select></div>
+      <button class="btn" id="b-user" onclick="crearUsuarioUI()">👥 Registrar usuario</button>
+      <p id="r-user" style="margin-top:8px"></p>
+    </div>
+    <div class="card">
+      <p class="eyebrow">Empresas y reglamentos</p>
+      <div class="grid3">
+        <div class="fld"><label>Nombre de la empresa</label><input id="e_nombre" placeholder="MI EMPRESA SAC"></div>
+        <div class="fld"><label>Prefijo de expediente (3-4 letras)</label><input id="e_prefijo" placeholder="EMP" maxlength="4"></div>
+        <div class="fld" style="display:flex;align-items:flex-end"><button class="btn" onclick="agregarEmpresaUI()">🏢 Registrar empresa</button></div>
+      </div>
+      <p id="r-emp" class="hint">Para cada empresa: sube a tu Drive los PDF <b>RIT-NOMBRE</b> y <b>RISST-NOMBRE</b> y luego usa 📚 Extraer reglamentos.</p>
+      <div id="listaEmp"></div>
+    </div>
+    <div class="card">
+      <p class="eyebrow">Usuarios del sistema</p>
+      <div class="loader" id="l-users"><div class="spin"></div>Cargando usuarios…</div>
+      <div id="listaUsers"></div>
+    </div>
+  </section>
+
   <div class="disc"><b>Borrador asistido — requiere revisión humana.</b> Los análisis apoyan tu criterio; valida cartas de preaviso/despido con un abogado antes de emitir. Datos sensibles bajo Ley 29733 — confidencialidad.</div>
 </div>
 
@@ -190,6 +243,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 const API_URL='https://script.google.com/macros/s/AKfycbzU4TkAm0jfnGCzB84RwuEfxmsbDPME1MLcfFuHOheBa4bQktmF9Q9Up9ONLvTbli6eeg/exec';
 let TOKEN=localStorage.getItem('rl_token')||'';
 let USUARIO=localStorage.getItem('rl_user')||'';
+let ROL=localStorage.getItem('rl_rol')||'';
 function esJoel(){return /joel|jtimoteo/i.test(USUARIO);}
 async function hacerLogin(){
   const u=g('lg_usuario'),c=g('lg_clave');
@@ -199,8 +253,9 @@ async function hacerLogin(){
     const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'login',usuario:u,clave:c})});
     const j=await r.json();
     if(!j.ok)throw new Error(j.error.replace('Error: ',''));
-    TOKEN=j.data.token;USUARIO=j.data.nombre;
-    localStorage.setItem('rl_token',TOKEN);localStorage.setItem('rl_user',USUARIO);
+    TOKEN=j.data.token;USUARIO=j.data.nombre;ROL=j.data.rol||'USUARIO';
+    localStorage.setItem('rl_token',TOKEN);localStorage.setItem('rl_user',USUARIO);localStorage.setItem('rl_rol',ROL);
+    localStorage.setItem('rl_empresas',JSON.stringify(j.data.empresas||[]));llenarEmpresas();
     document.getElementById('login').style.display='none';
     bienvenida();cargarCasos();
   }catch(e){alert(e.message);}
@@ -215,8 +270,15 @@ function bienvenida(){
   b.innerHTML='<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><span style="font:600 14.5px \'Inter\'">'+esc(msg)+'</span><button class="pill" onclick="document.getElementById(\'bienvenida\').style.display=\'none\'">✕</button></div>';
   b.style.display='block';
   const p=document.getElementById('userPill');p.textContent='👤 '+USUARIO+' · salir';p.style.display='inline-block';
+  document.getElementById('t-usuarios').style.display=(ROL==='ADMIN')?'':'none';
 }
 function mostrarLogin(){document.getElementById('login').style.display='flex';}
+function llenarEmpresas(){
+  let es=[];try{es=JSON.parse(localStorage.getItem('rl_empresas')||'[]');}catch(e){}
+  const sel=document.getElementById('n_empresa');sel.innerHTML='';
+  es.forEach(e=>{const o=document.createElement('option');o.value=e.nombre;o.textContent=e.nombre;sel.appendChild(o);});
+  if(!es.length){const o=document.createElement('option');o.textContent='(registra una empresa en 👥 Usuarios)';sel.appendChild(o);}
+}
 
 async function api(payload){
   if(!TOKEN){mostrarLogin();throw new Error('Inicia sesión para continuar.');}
@@ -234,11 +296,12 @@ async function api(payload){
 }
 
 function tab(t){
-  ['casos','nuevo','analizar','asesor'].forEach(x=>{
+  ['casos','nuevo','analizar','asesor','usuarios'].forEach(x=>{
     document.getElementById('p-'+x).style.display=x===t?'block':'none';
     document.getElementById('t-'+x).classList.toggle('on',x===t);
   });
   if(t==='asesor')saludoAsesor();
+  if(t==='usuarios'){cargarUsuarios();cargarEmpresasUI();}
 }
 function saludoAsesor(){
   const c=document.getElementById('chat');
@@ -254,25 +317,113 @@ function saludoAsesor(){
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ---- CASOS ----
+function pintarCasos(casos){
+  const lista=document.getElementById('lista');
+  stats(casos);lista.innerHTML='';
+  if(!casos.length){lista.innerHTML='<p class="hint">No hay casos que coincidan.</p>';return;}
+  casos.forEach(c=>{
+    const d=document.createElement('div');d.className='caso';
+    const est=String(c.estado||'').replace(' ','');
+    d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(c.codigo)+' · '+esc(c.trabajador||'—')+'</span>'+
+      '<span class="tag '+est+'">'+esc(c.estado)+'</span></div>'+
+      '<div class="c-meta">'+esc(c.empresa)+' · '+esc(c.tipo_falta||'—')+' · '+esc(c.sector||'—')+
+      (c.nivel_riesgo?' · riesgo <b>'+esc(c.nivel_riesgo)+'</b>':'')+' · '+esc(c.fecha_creacion)+'</div>';
+    d.onclick=()=>verCaso(c.codigo);
+    lista.appendChild(d);
+  });
+}
 async function cargarCasos(){
-  const l=document.getElementById('l-casos'),lista=document.getElementById('lista');
-  l.classList.add('show');lista.innerHTML='';document.getElementById('view').style.display='none';
+  const l=document.getElementById('l-casos');
+  const filtro=document.getElementById('q').value.trim();
+  document.getElementById('view').style.display='none';
+  if(!filtro){
+    const cc=localStorage.getItem('rl_casos');
+    if(cc){try{pintarCasos(JSON.parse(cc));}catch(e){}}
+  }
+  l.classList.add('show');
   try{
-    const casos=await api({accion:'listarCasos',filtro:document.getElementById('q').value.trim()});
-    stats(casos);
-    if(!casos.length){lista.innerHTML='<p class="hint">No hay casos que coincidan.</p>';return;}
-    casos.forEach(c=>{
-      const d=document.createElement('div');d.className='caso';
-      const est=String(c.estado||'').replace(' ','');
-      d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(c.codigo)+' · '+esc(c.trabajador||'—')+'</span>'+
-        '<span class="tag '+est+'">'+esc(c.estado)+'</span></div>'+
-        '<div class="c-meta">'+esc(c.empresa)+' · '+esc(c.tipo_falta||'—')+' · '+esc(c.sector||'—')+
-        (c.nivel_riesgo?' · riesgo <b>'+esc(c.nivel_riesgo)+'</b>':'')+' · '+esc(c.fecha_creacion)+'</div>';
-      d.onclick=()=>verCaso(c.codigo);
-      lista.appendChild(d);
-    });
-  }catch(e){lista.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
+    const casos=await api({accion:'listarCasos',filtro});
+    pintarCasos(casos);
+    if(!filtro)localStorage.setItem('rl_casos',JSON.stringify(casos));
+  }catch(e){document.getElementById('lista').innerHTML='<p class="err">'+esc(e.message)+'</p>';}
   finally{l.classList.remove('show');}
+}
+
+// ---- USUARIOS (ADMIN) ----
+async function cargarUsuarios(){
+  if(ROL!=='ADMIN')return;
+  const l=document.getElementById('l-users'),box=document.getElementById('listaUsers');
+  l.classList.add('show');box.innerHTML='';
+  try{
+    const us=await api({accion:'listarUsuarios'});
+    us.forEach(u=>{
+      const d=document.createElement('div');d.className='caso';d.style.cursor='default';
+      d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(u.nombre)+' <span class="hint">('+esc(u.usuario)+')</span></span>'+
+        '<span style="display:flex;gap:8px;align-items:center"><span class="tag '+(u.activo?'ENANALISIS':'CERRADO')+'">'+(u.activo?'ACTIVO':'INACTIVO')+'</span>'+
+        '<button class="pill" onclick="toggleUsuario(\''+esc(u.usuario)+'\','+(!u.activo)+')">'+(u.activo?'Desactivar':'Activar')+'</button></span></div>'+
+        '<div class="c-meta">Rol: '+esc(u.rol)+(u.vence?' · ⏳ Prueba hasta '+esc(u.vence):' · Licencia sin límite')+' · <a href="#" onclick="renovarUsuario(\''+esc(u.usuario)+'\');return false" style="color:var(--green)">renovar/licenciar</a></div>';
+      box.appendChild(d);
+    });
+  }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
+  finally{l.classList.remove('show');}
+}
+async function crearUsuarioUI(){
+  const r=document.getElementById('r-user'),b=document.getElementById('b-user');
+  const user=g('u_user'),nombre=g('u_nombre'),clave=g('u_clave'),rol=g('u_rol');
+  if(!user||!nombre||!clave){r.innerHTML='<span class="err">Completa usuario, nombre y contraseña.</span>';return;}
+  if(clave.length<8){r.innerHTML='<span class="err">La contraseña debe tener al menos 8 caracteres.</span>';return;}
+  b.disabled=true;r.textContent='';
+  try{
+    await api({accion:'crearUsuarioAdmin',usuario_nuevo:user,clave:clave,nombre:nombre,rol:rol,dias_prueba:g('u_dias')});
+    r.innerHTML='<span class="ok">✅ Usuario '+esc(user)+' registrado. Ya puede iniciar sesión.</span>';
+    ['u_user','u_nombre','u_clave'].forEach(i=>document.getElementById(i).value='');
+    cargarUsuarios();
+  }catch(e){r.innerHTML='<span class="err">'+esc(e.message)+'</span>';}
+  finally{b.disabled=false;}
+}
+async function toggleUsuario(u,act){
+  try{await api({accion:'estadoUsuario',usuario_obj:u,activo:act});cargarUsuarios();}
+  catch(e){alert(e.message);}
+}
+async function renovarUsuario(u){
+  const d=prompt('Días de acceso para '+u+' (0 = licencia sin límite):','7');
+  if(d===null)return;
+  try{await api({accion:'renovarUsuario',usuario_obj:u,dias:parseInt(d,10)||0});cargarUsuarios();}
+  catch(e){alert(e.message);}
+}
+// ---- EMPRESAS (ADMIN) ----
+async function cargarEmpresasUI(){
+  const box=document.getElementById('listaEmp');if(!box)return;
+  box.innerHTML='';
+  try{
+    const es=await api({accion:'listarEmpresas'});
+    localStorage.setItem('rl_empresas',JSON.stringify(es));llenarEmpresas();
+    es.forEach(e=>{
+      const d=document.createElement('div');d.className='caso';d.style.cursor='default';
+      d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(e.nombre)+' <span class="hint">(prefijo '+esc(e.prefijo)+')</span></span>'+
+        '<button class="pill" onclick="extraerRegUI(\''+esc(e.nombre)+'\')">📚 Extraer reglamentos</button></div>';
+      box.appendChild(d);
+    });
+  }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
+}
+async function agregarEmpresaUI(){
+  const r=document.getElementById('r-emp');
+  const n=g('e_nombre'),p=g('e_prefijo');
+  if(!n||!p){r.innerHTML='<span class="err">Completa nombre y prefijo.</span>';return;}
+  try{
+    await api({accion:'agregarEmpresa',empresa_nombre:n,empresa_prefijo:p});
+    r.innerHTML='<span class="ok">✅ Empresa registrada. Sube a Drive sus PDF como RIT-'+esc(n.toUpperCase())+' y RISST-'+esc(n.toUpperCase())+' y dale a 📚 Extraer.</span>';
+    document.getElementById('e_nombre').value='';document.getElementById('e_prefijo').value='';
+    cargarEmpresasUI();
+  }catch(e){r.innerHTML='<span class="err">'+esc(e.message)+'</span>';}
+}
+async function extraerRegUI(nombre){
+  const r=document.getElementById('r-emp');
+  r.innerHTML='<span class="hint">⏳ Extrayendo reglamentos de '+esc(nombre)+' (1-2 min)…</span>';
+  try{
+    const res=await api({accion:'extraerReglamentosEmpresa',empresa_nombre:nombre});
+    r.innerHTML='<span class="ok">'+esc((res.resultado||[]).join(' · '))+'</span>';
+  }catch(e){r.innerHTML='<span class="err">'+esc(e.message)+'</span>';}
 }
 function stats(casos){
   const ab=casos.filter(c=>c.estado==='ABIERTO').length;
@@ -470,7 +621,7 @@ async function exposicionGerencia(){
   finally{l.classList.remove('show');}
 }
 
-if(USUARIO&&TOKEN){bienvenida();cargarCasos();}
+if(USUARIO&&TOKEN){bienvenida();llenarEmpresas();cargarCasos();}
 else{mostrarLogin();}
 </script>
 </body>
