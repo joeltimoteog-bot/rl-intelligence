@@ -8,26 +8,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#19232e;--soft:#3a4856;--paper:#f6f5f1;--panel:#fbfbf9;--line:#e2e0d8;--lineS:#cdcabd;
---green:#2f5d50;--greenD:#234a40;--amber:#b8771f;--red:#a83a32;
---shadow:0 1px 2px rgba(25,35,46,.06),0 8px 24px rgba(25,35,46,.06)}
+:root{--ink:#e7eaf2;--soft:#98a2b5;--paper:#0b0d12;--panel:#12151d;--line:#222836;--lineS:#3a4358;
+--green:#2563eb;--greenD:#1d4ed8;--amber:#d97706;--red:#ef4444;
+--shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.4)}
 *{box-sizing:border-box}html,body{margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font:15px/1.5 'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1080px;margin:0 auto;padding:0 16px 60px}
-header{position:sticky;top:0;z-index:20;background:rgba(246,245,241,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .bar{max-width:1080px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
-.seal{font:700 17px 'Spectral',serif;width:34px;height:34px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:9px}
+.seal{font:700 17px 'Spectral',serif;width:34px;height:34px;display:grid;place-items:center;background:var(--green);color:#fff;border-radius:9px}
 .brand h1{font:600 17px 'Spectral',serif;margin:0;line-height:1.1}
 .brand span{font:500 11px 'Inter';color:var(--soft)}
 .spacer{flex:1}
 .pill{font:600 11.5px 'Inter';color:var(--soft);border:1px solid var(--lineS);border-radius:999px;padding:5px 11px;cursor:pointer;background:var(--panel)}
 nav{display:flex;gap:8px;margin:18px 0}
-nav button{border:1px solid var(--lineS);background:#fff;color:var(--soft);padding:9px 16px;border-radius:999px;font:600 13px 'Inter';cursor:pointer}
-nav button.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+nav button{border:1px solid var(--lineS);background:#171c28;color:var(--soft);padding:9px 16px;border-radius:999px;font:600 13px 'Inter';cursor:pointer}
+nav button.on{background:var(--green);border-color:var(--green);color:#fff}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
 .eyebrow{font:600 11px 'Inter';color:var(--soft);text-transform:uppercase;letter-spacing:.09em;margin:0 0 12px}
 label{display:block;font:600 11px 'Inter';color:var(--soft);text-transform:uppercase;letter-spacing:.05em;margin:0 0 5px}
-input,select,textarea{width:100%;border:1px solid var(--lineS);background:#fff;color:var(--ink);border-radius:9px;padding:10px 11px;font:400 14px 'Inter';resize:vertical}
+input,select,textarea{width:100%;border:1px solid var(--lineS);background:#171c28;color:var(--ink);border-radius:9px;padding:10px 11px;font:400 14px 'Inter';resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -39,7 +39,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 .hint{font:400 12px 'Inter';color:var(--soft)}
 .searchrow{display:flex;gap:10px;margin-bottom:14px}
 .searchrow input{flex:1}
-.caso{border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin:9px 0;background:#fff;cursor:pointer;transition:.13s}
+.caso{border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin:9px 0;background:#171c28;cursor:pointer;transition:.13s}
 .caso:hover{border-color:var(--green)}
 .c-top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 .c-cod{font:700 13.5px 'Inter';color:var(--ink)}
@@ -47,15 +47,15 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 .tag{font:700 10.5px 'Inter';padding:3px 9px;border-radius:999px;letter-spacing:.03em}
 .tag.ABIERTO{background:rgba(184,119,31,.14);color:var(--amber)}
 .tag.CERRADO{background:rgba(58,72,86,.1);color:var(--soft)}
-.tag.ENANALISIS{background:rgba(47,93,80,.12);color:var(--green)}
+.tag.ENANALISIS{background:rgba(37,99,235,.16);color:var(--green)}
 .badge{font:700 12px 'Inter';padding:5px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:7px}
 .badge::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
-.badge.BAJO{background:rgba(47,93,80,.12);color:var(--green)}
+.badge.BAJO{background:rgba(37,99,235,.16);color:var(--green)}
 .badge.MEDIO{background:rgba(184,119,31,.14);color:var(--amber)}
 .badge.ALTO{background:rgba(168,58,50,.13);color:var(--red)}
 .ev h3{font:600 15.5px 'Spectral',serif;margin:16px 0 6px}
 .ev p{margin:0 0 8px;font-size:14px;line-height:1.6}
-.persona{border-left:3px solid var(--lineS);padding:8px 12px;margin:8px 0;background:#fff;border-radius:0 8px 8px 0;font-size:13.5px}
+.persona{border-left:3px solid var(--lineS);padding:8px 12px;margin:8px 0;background:#171c28;border-radius:0 8px 8px 0;font-size:13.5px}
 .loader{display:none;align-items:center;gap:10px;color:var(--soft);font:500 13.5px 'Inter';padding:10px 0}
 .loader.show{display:flex}
 .spin{width:16px;height:16px;border:2.5px solid var(--lineS);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
@@ -63,7 +63,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 .ok{color:var(--greenD);font:600 13.5px 'Inter'}
 .err{color:var(--red);font:500 13.5px 'Inter'}
 .stat{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.stat .s{flex:1;min-width:110px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;text-align:center}
+.stat .s{flex:1;min-width:110px;background:#171c28;border:1px solid var(--line);border-radius:11px;padding:12px;text-align:center}
 .stat .n{font:700 22px 'Spectral',serif}
 .stat .l{font:600 11px 'Inter';color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
 .disc{margin-top:22px;border:1px dashed var(--lineS);border-radius:11px;padding:12px 14px;background:rgba(184,119,31,.05);font:400 12px 'Inter';color:var(--soft)}
@@ -71,14 +71,27 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 </style>
 </head>
 <body>
+<div class="login" id="login" style="display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 50% -10%,rgba(37,99,235,.28),transparent 70%),radial-gradient(700px 400px at 90% 110%,rgba(239,68,68,.18),transparent 70%),#0b0d12">
+  <div style="width:min(92vw,380px);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)">
+    <div style="width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,#2563eb,#ef4444);display:grid;place-items:center;font:700 22px 'Spectral',serif;color:#fff">RL</div>
+    <h2 style="font:600 20px 'Spectral',serif;margin:14px 0 4px">RL Intelligence AI</h2>
+    <p style="font:400 13px 'Inter';color:var(--soft);margin:0 0 16px">Sistema de investigación laboral con IA</p>
+    <label>Usuario</label><input id="lg_usuario" placeholder="jtimoteo" autocomplete="username" onkeydown="if(event.key==='Enter')hacerLogin()">
+    <div style="height:10px"></div>
+    <label>Contraseña</label><input id="lg_clave" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')hacerLogin()">
+    <div style="height:16px"></div>
+    <button class="btn" id="lg_btn" style="width:100%;justify-content:center" onclick="hacerLogin()">Ingresar</button>
+  </div>
+</div>
 <header><div class="bar">
   <div class="seal">RL</div>
-  <div class="brand"><h1>RL Intelligence AI</h1><span>Relaciones Laborales · Verfrut / Rapel</span></div>
+  <div class="brand"><h1>RL Intelligence AI</h1><span>Investigación Laboral Inteligente</span></div>
   <div class="spacer"></div>
-  <button class="pill" onclick="cambiarToken()">🔑 Token</button>
+  <button class="pill" id="userPill" onclick="salir()" style="display:none"></button>
 </div></header>
 
 <div class="wrap">
+  <div class="card" id="bienvenida" style="display:none;border-left:4px solid var(--green);margin-top:16px;margin-bottom:0"></div>
   <nav>
     <button id="t-casos" class="on" onclick="tab('casos')">📋 Casos</button>
     <button id="t-nuevo" onclick="tab('nuevo')">➕ Nuevo caso</button>
@@ -160,7 +173,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <div class="card">
       <p class="eyebrow">Asesor legal del caso · conversa como con un abogado</p>
       <div class="fld"><label>Código de expediente (opcional — déjalo vacío para conversar en general)</label><input id="c_codigo" placeholder="RAP-2026-0002 o vacío" onchange="MSJS=[];document.getElementById('chat').innerHTML='';saludoAsesor();"></div>
-      <div id="chat" style="min-height:120px;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px"></div>
+      <div id="chat" style="min-height:120px;max-height:420px;overflow-y:auto;background:#171c28;border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px"></div>
       <div style="display:flex;gap:8px">
         <textarea id="c_msg" rows="2" style="flex:1" placeholder="Ej.: ¿Qué medida sugieres si ya tiene una suspensión previa? · ¿Procede preaviso o primero suspensión? · Redáctame la respuesta para el supervisor…"></textarea>
         <button class="btn" id="b-chat" onclick="enviarConsulta()">Enviar</button>
@@ -176,22 +189,45 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbzU4TkAm0jfnGCzB84RwuEfxmsbDPME1MLcfFuHOheBa4bQktmF9Q9Up9ONLvTbli6eeg/exec';
 let TOKEN=localStorage.getItem('rl_token')||'';
-const _urlTok=new URLSearchParams(location.search).get('token');
-if(_urlTok){TOKEN=_urlTok.trim();localStorage.setItem('rl_token',TOKEN);history.replaceState(null,'',location.pathname);}
-
-function pedirToken(){
-  const t=prompt('🔑 Ingresa el API_TOKEN del sistema (GAS → Configuración → Propiedades del script). Se guarda en este dispositivo:');
-  if(t){TOKEN=t.trim();localStorage.setItem('rl_token',TOKEN);}
+let USUARIO=localStorage.getItem('rl_user')||'';
+function esJoel(){return /joel|jtimoteo/i.test(USUARIO);}
+async function hacerLogin(){
+  const u=g('lg_usuario'),c=g('lg_clave');
+  if(!u||!c){alert('Completa usuario y contraseña.');return;}
+  const b=document.getElementById('lg_btn');b.disabled=true;b.textContent='Verificando…';
+  try{
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'login',usuario:u,clave:c})});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error.replace('Error: ',''));
+    TOKEN=j.data.token;USUARIO=j.data.nombre;
+    localStorage.setItem('rl_token',TOKEN);localStorage.setItem('rl_user',USUARIO);
+    document.getElementById('login').style.display='none';
+    bienvenida();cargarCasos();
+  }catch(e){alert(e.message);}
+  finally{b.disabled=false;b.textContent='Ingresar';}
 }
-function cambiarToken(){localStorage.removeItem('rl_token');TOKEN='';pedirToken();}
+function salir(){localStorage.removeItem('rl_user');localStorage.removeItem('rl_token');USUARIO='';TOKEN='';location.reload();}
+function bienvenida(){
+  const b=document.getElementById('bienvenida');
+  const msg=esJoel()
+    ?'¡Hola Joel! 👋 Bienvenido a nuestro sistema. Comencemos, colega, a evaluar los casos. ⚖️'
+    :'Hola, estimado(a) '+USUARIO+'. 👋 Seré tu apoyo ante el caso que subas, para darte un mejor alcance.';
+  b.innerHTML='<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><span style="font:600 14.5px \'Inter\'">'+esc(msg)+'</span><button class="pill" onclick="document.getElementById(\'bienvenida\').style.display=\'none\'">✕</button></div>';
+  b.style.display='block';
+  const p=document.getElementById('userPill');p.textContent='👤 '+USUARIO+' · salir';p.style.display='inline-block';
+}
+function mostrarLogin(){document.getElementById('login').style.display='flex';}
 
 async function api(payload){
-  if(!TOKEN)pedirToken();
+  if(!TOKEN){mostrarLogin();throw new Error('Inicia sesión para continuar.');}
   payload.token=TOKEN;
   const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
   const j=await r.json();
   if(!j.ok){
-    if(String(j.error).includes('No autorizado')){cambiarToken();throw new Error('Token incorrecto. Intenta de nuevo.');}
+    if(/Sesión expirada|No autorizado/i.test(String(j.error))){
+      localStorage.removeItem('rl_token');TOKEN='';mostrarLogin();
+      throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
+    }
     throw new Error(j.error);
   }
   return j.data;
@@ -210,7 +246,9 @@ function saludoAsesor(){
   const h=new Date().getHours();
   const s=h<12?'Buenos días':(h<19?'Buenas tardes':'Buenas noches');
   const cod=g('c_codigo');
-  const ap=s+', Joel. 👋 Aquí tu colega de despacho, listo. '+(cod?('Tengo el expediente '+cod+' a la mano — ¿lo revisamos?'):'¿Qué caso vemos hoy? Pon el código del expediente arriba, o cuéntame en general y lo conversamos entre abogados.');
+  const ap=esJoel()
+    ? s+', Joel. 👋 Aquí tu colega de despacho, listo. '+(cod?('Tengo el expediente '+cod+' a la mano — ¿lo revisamos?'):'¿Qué caso vemos hoy? Pon el código del expediente arriba, o cuéntame en general y lo conversamos entre abogados.')
+    : s+', estimado(a) '+USUARIO+'. 👋 Seré tu apoyo en este caso. '+(cod?('Tengo el expediente '+cod+' a la mano — cuando gustes lo revisamos.'):'Indícame el código del expediente arriba, o cuéntame tu consulta para darte un mejor alcance.');
   burbuja('assistant',ap);MSJS.push({role:'assistant',content:ap});
 }
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -270,7 +308,7 @@ async function crear(){
     const d={empresa:g('n_empresa'),regimen:g('n_regimen'),trabajador:g('n_trab'),dni:g('n_dni'),
       cargo:g('n_cargo'),sector:g('n_sector'),ruta:g('n_ruta'),supervisor:g('n_super'),
       administrador:g('n_admin'),tipo_falta:g('n_falta'),fecha_hechos:g('n_fecha'),
-      lugar_hechos:g('n_lugar'),descripcion_corta:g('n_desc'),creado_por:'web'};
+      lugar_hechos:g('n_lugar'),descripcion_corta:g('n_desc'),creado_por:USUARIO||'web'};
     const res=await api({accion:'crearCaso',datos:d});
     r.innerHTML='<span class="ok">✅ Expediente creado: <b>'+esc(res.codigo)+'</b> — carpeta en Drive lista. Ya puedes analizarlo.</span>';
     document.getElementById('a_codigo').value=res.codigo;
@@ -302,9 +340,9 @@ async function analizar(){
     let ev;
     if(ARCHIVO){
       document.querySelector('#l-analizar span')?.remove;
-      ev=await api({accion:'analizarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:'web',antecedentes:g('a_record')});
+      ev=await api({accion:'analizarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:USUARIO||'web',antecedentes:g('a_record')});
     }else{
-      ev=await api({accion:'analizarCaso',codigo,texto,usuario:'web',antecedentes:g('a_record')});
+      ev=await api({accion:'analizarCaso',codigo,texto,usuario:USUARIO||'web',antecedentes:g('a_record')});
     }
     res.style.display='block';res.innerHTML=renderEval(ev,false);
     window.scrollTo({top:res.offsetTop-70,behavior:'smooth'});
@@ -350,8 +388,8 @@ async function investigar(){
   document.querySelector('#l-analizar').lastElementChild&&(document.querySelector('#l-analizar').lastElementChild.textContent='Investigando el expediente (extracción y auditoría)…');
   try{
     let inv;
-    if(ARCHIVO){inv=await api({accion:'investigarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:'web',antecedentes:g('a_record')});}
-    else{inv=await api({accion:'investigar',codigo,texto,usuario:'web',antecedentes:g('a_record')});}
+    if(ARCHIVO){inv=await api({accion:'investigarArchivo',codigo,nombre:ARCHIVO.nombre,base64:ARCHIVO.base64,mime:ARCHIVO.mime,usuario:USUARIO||'web',antecedentes:g('a_record')});}
+    else{inv=await api({accion:'investigar',codigo,texto,usuario:USUARIO||'web',antecedentes:g('a_record')});}
     res.style.display='block';res.innerHTML=renderInvestigacion(inv,codigo);
     window.scrollTo({top:res.offsetTop-70,behavior:'smooth'});
   }catch(e){res.style.display='block';res.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
@@ -404,7 +442,7 @@ function burbuja(rol,txt){
   const c=document.getElementById('chat');
   const d=document.createElement('div');
   d.style.cssText='margin:6px 0;padding:9px 12px;border-radius:11px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;max-width:85%;'+
-    (rol==='user'?'background:var(--ink);color:var(--paper);margin-left:auto':'background:var(--paper);border:1px solid var(--line)');
+    (rol==='user'?'background:var(--green);color:#fff;margin-left:auto':'background:var(--paper);border:1px solid var(--line)');
   d.textContent=txt;c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
 async function enviarConsulta(){
@@ -414,7 +452,7 @@ async function enviarConsulta(){
   burbuja('user',msg);MSJS.push({role:'user',content:msg});
   document.getElementById('c_msg').value='';b.disabled=true;l.classList.add('show');
   try{
-    const r=await api({accion:'consultar',codigo,mensajes:MSJS,usuario:'web'});
+    const r=await api({accion:'consultar',codigo,mensajes:MSJS,usuario:USUARIO||'web'});
     burbuja('assistant',r.respuesta);MSJS.push({role:'assistant',content:r.respuesta});
   }catch(e){burbuja('assistant','⚠️ '+e.message);}
   finally{b.disabled=false;l.classList.remove('show');}
@@ -426,13 +464,14 @@ async function exposicionGerencia(){
   burbuja('user','Prepárame la exposición del caso '+codigo+' para jefaturas y gerencia.');
   MSJS.push({role:'user',content:'Prepárame la exposición del caso para jefaturas y gerencia.'});
   try{
-    const r=await api({accion:'exposicion',codigo,usuario:'web'});
+    const r=await api({accion:'exposicion',codigo,usuario:USUARIO||'web'});
     burbuja('assistant',r.respuesta);MSJS.push({role:'assistant',content:r.respuesta});
   }catch(e){burbuja('assistant','⚠️ '+e.message);}
   finally{l.classList.remove('show');}
 }
 
-cargarCasos();
+if(USUARIO&&TOKEN){bienvenida();cargarCasos();}
+else{mostrarLogin();}
 </script>
 </body>
 </html>
