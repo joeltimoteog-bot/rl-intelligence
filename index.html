@@ -81,6 +81,35 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     <label>Contraseña</label><input id="lg_clave" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')hacerLogin()">
     <div style="height:16px"></div>
     <button class="btn" id="lg_btn" style="width:100%;justify-content:center" onclick="hacerLogin()">Ingresar</button>
+    <p style="text-align:center;margin:12px 0 0"><a href="#" onclick="document.getElementById('solic').style.display='block';return false" style="color:var(--green);font:600 12.5px 'Inter';text-decoration:none">¿Aún no tienes acceso? Solicítalo aquí</a></p>
+    <div id="solic" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+      <label>Tu nombre</label><input id="s_nombre">
+      <div style="height:8px"></div>
+      <label>Empresa</label><input id="s_empresa">
+      <div style="height:8px"></div>
+      <label>Correo o WhatsApp</label><input id="s_contacto">
+      <div style="height:8px"></div>
+      <label>Mensaje (opcional)</label><input id="s_msj" placeholder="Quiero probar el sistema">
+      <div style="height:12px"></div>
+      <button class="btn ghost" style="width:100%;justify-content:center" onclick="enviarSolicitud()">Enviar solicitud</button>
+    </div>
+  </div>
+</div>
+<div id="toast" style="display:none;position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;background:var(--panel);border:1px solid var(--green);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);max-width:92vw;align-items:center;gap:10px">
+  <img src="logo.png" style="width:26px;height:26px;border-radius:7px" onerror="this.style.display='none'">
+  <span id="toastTxt" style="font:600 13.5px 'Inter'"></span>
+</div>
+<div id="modalIn" style="display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:16px">
+  <div class="card" style="max-width:360px;width:100%;margin:0">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <img src="logo.png" style="width:30px;height:30px;border-radius:8px" onerror="this.style.display='none'">
+      <b id="modalTit" style="font:700 14px 'Inter'"></b>
+    </div>
+    <input id="modalVal" onkeydown="if(event.key==='Enter')_modalOk()">
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn" style="flex:1;justify-content:center" onclick="_modalOk()">Aceptar</button>
+      <button class="btn ghost" style="flex:1;justify-content:center" onclick="_modalCancel()">Cancelar</button>
+    </div>
   </div>
 </div>
 <div id="guia" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px">
@@ -228,11 +257,16 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
       </div>
       <p id="r-emp" class="hint">Para cada empresa: sube a tu Drive los PDF <b>RIT-NOMBRE</b> y <b>RISST-NOMBRE</b> y luego usa 📚 Extraer reglamentos.</p>
       <div id="listaEmp"></div>
+      <input type="file" id="regFile" accept="application/pdf" style="display:none" onchange="regFileSel(this)">
     </div>
     <div class="card">
       <p class="eyebrow">Usuarios del sistema</p>
       <div class="loader" id="l-users"><div class="spin"></div>Cargando usuarios…</div>
       <div id="listaUsers"></div>
+    </div>
+    <div class="card">
+      <p class="eyebrow">Solicitudes de acceso</p>
+      <div id="listaSolic"><p class="hint">Cargando…</p></div>
     </div>
   </section>
 
@@ -247,7 +281,7 @@ let ROL=localStorage.getItem('rl_rol')||'';
 function esJoel(){return /joel|jtimoteo/i.test(USUARIO);}
 async function hacerLogin(){
   const u=g('lg_usuario'),c=g('lg_clave');
-  if(!u||!c){alert('Completa usuario y contraseña.');return;}
+  if(!u||!c){aviso('Completa usuario y contraseña.');return;}
   const b=document.getElementById('lg_btn');b.disabled=true;b.textContent='Verificando…';
   try{
     const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'login',usuario:u,clave:c})});
@@ -258,7 +292,7 @@ async function hacerLogin(){
     localStorage.setItem('rl_empresas',JSON.stringify(j.data.empresas||[]));llenarEmpresas();
     document.getElementById('login').style.display='none';
     bienvenida();cargarCasos();
-  }catch(e){alert(e.message);}
+  }catch(e){aviso(e.message);}
   finally{b.disabled=false;b.textContent='Ingresar';}
 }
 function salir(){localStorage.removeItem('rl_user');localStorage.removeItem('rl_token');USUARIO='';TOKEN='';location.reload();}
@@ -273,6 +307,21 @@ function bienvenida(){
   document.getElementById('t-usuarios').style.display=(ROL==='ADMIN')?'':'none';
 }
 function mostrarLogin(){document.getElementById('login').style.display='flex';}
+function aviso(t){const x=document.getElementById('toast');document.getElementById('toastTxt').textContent=t;x.style.display='flex';clearTimeout(x._t);x._t=setTimeout(()=>x.style.display='none',4200);}
+let _modalRes=null;
+function pedirDato(titulo,def){return new Promise(res=>{_modalRes=res;document.getElementById('modalTit').textContent=titulo;const v=document.getElementById('modalVal');v.value=def||'';document.getElementById('modalIn').style.display='flex';setTimeout(()=>v.focus(),60);});}
+function _modalOk(){document.getElementById('modalIn').style.display='none';const r=_modalRes;_modalRes=null;if(r)r(document.getElementById('modalVal').value);}
+function _modalCancel(){document.getElementById('modalIn').style.display='none';const r=_modalRes;_modalRes=null;if(r)r(null);}
+async function enviarSolicitud(){
+  const n=g('s_nombre'),c=g('s_contacto');
+  if(!n||!c){aviso('Completa tu nombre y un contacto.');return;}
+  try{
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'solicitarAcceso',nombre:n,empresa:g('s_empresa'),contacto:c,mensaje:g('s_msj')})});
+    const j=await r.json();if(!j.ok)throw new Error(j.error);
+    aviso('✅ Solicitud enviada. Te contactaremos pronto.');
+    document.getElementById('solic').style.display='none';
+  }catch(e){aviso('⚠️ '+e.message);}
+}
 function llenarEmpresas(){
   let es=[];try{es=JSON.parse(localStorage.getItem('rl_empresas')||'[]');}catch(e){}
   const sel=document.getElementById('n_empresa');sel.innerHTML='';
@@ -301,7 +350,7 @@ function tab(t){
     document.getElementById('t-'+x).classList.toggle('on',x===t);
   });
   if(t==='asesor')saludoAsesor();
-  if(t==='usuarios'){cargarUsuarios();cargarEmpresasUI();}
+  if(t==='usuarios'){cargarUsuarios();cargarEmpresasUI();cargarSolicitudes();}
 }
 function saludoAsesor(){
   const c=document.getElementById('chat');
@@ -383,13 +432,28 @@ async function crearUsuarioUI(){
 }
 async function toggleUsuario(u,act){
   try{await api({accion:'estadoUsuario',usuario_obj:u,activo:act});cargarUsuarios();}
-  catch(e){alert(e.message);}
+  catch(e){aviso(e.message);}
 }
 async function renovarUsuario(u){
-  const d=prompt('Días de acceso para '+u+' (0 = licencia sin límite):','7');
+  const d=await pedirDato('Días de acceso para '+u+' (0 = licencia sin límite)','7');
   if(d===null)return;
   try{await api({accion:'renovarUsuario',usuario_obj:u,dias:parseInt(d,10)||0});cargarUsuarios();}
-  catch(e){alert(e.message);}
+  catch(e){aviso(e.message);}
+}
+let REGSEL=null;
+function subirReg(emp,tipo){REGSEL={emp:emp,tipo:tipo};document.getElementById('regFile').click();}
+async function regFileSel(inp){
+  const f=inp.files[0];inp.value='';if(!f||!REGSEL)return;
+  if(f.size>18*1024*1024){aviso('El PDF supera 18 MB. Comprímelo primero.');return;}
+  const r=document.getElementById('r-emp');
+  r.innerHTML='<span class="hint">⏳ Subiendo y leyendo '+REGSEL.tipo+'-'+REGSEL.emp+' (1-2 min)…</span>';
+  const b64=await new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>res(rd.result.split(',')[1]);rd.onerror=rej;rd.readAsDataURL(f);});
+  try{
+    const out=await api({accion:'subirReglamento',empresa_nombre:REGSEL.emp,tipo:REGSEL.tipo,nombre:f.name,base64:b64,mime:f.type||'application/pdf'});
+    r.innerHTML='<span class="ok">✅ '+esc(out.clave)+' cargado ('+esc(out.caracteres)+' caracteres). La IA ya lo usará en los análisis.</span>';
+    aviso('✅ Reglamento '+out.clave+' listo.');
+  }catch(e){r.innerHTML='<span class="err">'+esc(e.message)+'</span>';}
+  finally{REGSEL=null;}
 }
 // ---- EMPRESAS (ADMIN) ----
 async function cargarEmpresasUI(){
@@ -401,7 +465,7 @@ async function cargarEmpresasUI(){
     es.forEach(e=>{
       const d=document.createElement('div');d.className='caso';d.style.cursor='default';
       d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(e.nombre)+' <span class="hint">(prefijo '+esc(e.prefijo)+')</span></span>'+
-        '<button class="pill" onclick="extraerRegUI(\''+esc(e.nombre)+'\')">📚 Extraer reglamentos</button></div>';
+        '<span style="display:flex;gap:6px;flex-wrap:wrap"><button class="pill" onclick="subirReg(\''+esc(e.nombre)+'\',\'RIT\')">⬆️ Subir RIT</button><button class="pill" onclick="subirReg(\''+esc(e.nombre)+'\',\'RISST\')">⬆️ Subir RISST</button><button class="pill" onclick="extraerRegUI(\''+esc(e.nombre)+'\')">📚 Desde Drive</button></span></div>';
       box.appendChild(d);
     });
   }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
@@ -472,7 +536,7 @@ function g(id){return document.getElementById(id).value.trim();}
 let ARCHIVO=null;
 function archivoSel(inp){
   const f=inp.files[0];if(!f)return;
-  if(f.size>15*1024*1024){alert('El archivo supera 15 MB. Comprímelo o divídelo.');inp.value='';return;}
+  if(f.size>15*1024*1024){aviso('El archivo supera 15 MB. Comprímelo o divídelo.');inp.value='';return;}
   const r=new FileReader();
   r.onload=()=>{ARCHIVO={nombre:f.name,mime:f.type||'application/pdf',base64:r.result.split(',')[1]};
     const c=document.getElementById('a_chip');c.textContent='📄 '+f.name;c.style.display='inline';
@@ -485,7 +549,7 @@ function quitarArchivo(){ARCHIVO=null;document.getElementById('a_file').value=''
 async function analizar(){
   const b=document.getElementById('b-analizar'),l=document.getElementById('l-analizar'),res=document.getElementById('resultado');
   const codigo=g('a_codigo'),texto=g('a_texto');
-  if(!codigo||(!texto&&!ARCHIVO)){alert('Completa el código del expediente y pega el informe o adjunta el archivo.');return;}
+  if(!codigo||(!texto&&!ARCHIVO)){aviso('Completa el código del expediente y pega el informe o adjunta el archivo.');return;}
   b.disabled=true;l.classList.add('show');res.style.display='none';
   try{
     let ev;
@@ -534,7 +598,7 @@ function renderEval(ev,guardada){
 async function investigar(){
   const b=document.getElementById('b-investigar'),l=document.getElementById('l-analizar'),res=document.getElementById('resultado');
   const codigo=g('a_codigo'),texto=g('a_texto');
-  if(!codigo||(!texto&&!ARCHIVO)){alert('Completa el código del expediente y pega el informe o adjunta el archivo.');return;}
+  if(!codigo||(!texto&&!ARCHIVO)){aviso('Completa el código del expediente y pega el informe o adjunta el archivo.');return;}
   b.disabled=true;l.classList.add('show');res.style.display='none';
   document.querySelector('#l-analizar').lastElementChild&&(document.querySelector('#l-analizar').lastElementChild.textContent='Investigando el expediente (extracción y auditoría)…');
   try{
@@ -587,6 +651,21 @@ function irAsesor(codigo,nCriticos){
   tab('asesor');
 }
 
+async function cargarSolicitudes(){
+  const box=document.getElementById('listaSolic');if(!box)return;
+  try{
+    const ss=await api({accion:'listarSolicitudes'});
+    if(!ss.length){box.innerHTML='<p class="hint">No hay solicitudes pendientes.</p>';return;}
+    box.innerHTML='';
+    ss.forEach(s=>{
+      const d=document.createElement('div');d.className='caso';d.style.cursor='default';
+      d.innerHTML='<div class="c-top"><span class="c-cod">'+esc(s.nombre)+(s.empresa?' · '+esc(s.empresa):'')+'</span><span class="hint">'+esc(s.fecha)+'</span></div>'+
+        '<div class="c-meta">📞 '+esc(s.contacto)+(s.mensaje?' · «'+esc(s.mensaje)+'»':'')+'</div>';
+      box.appendChild(d);
+    });
+  }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
+}
+
 // ---- ASESOR ----
 let MSJS=[];
 function burbuja(rol,txt){
@@ -598,7 +677,7 @@ function burbuja(rol,txt){
 }
 async function enviarConsulta(){
   const codigo=g('c_codigo'),msg=g('c_msg');
-  if(!msg){alert('Escribe tu consulta.');return;}
+  if(!msg){aviso('Escribe tu consulta.');return;}
   const b=document.getElementById('b-chat'),l=document.getElementById('l-chat');
   burbuja('user',msg);MSJS.push({role:'user',content:msg});
   document.getElementById('c_msg').value='';b.disabled=true;l.classList.add('show');
@@ -610,7 +689,7 @@ async function enviarConsulta(){
 }
 async function exposicionGerencia(){
   const codigo=g('c_codigo');
-  if(!codigo){alert('Pon el código del expediente para preparar la exposición.');return;}
+  if(!codigo){aviso('Pon el código del expediente para preparar la exposición.');return;}
   const l=document.getElementById('l-chat');l.classList.add('show');
   burbuja('user','Prepárame la exposición del caso '+codigo+' para jefaturas y gerencia.');
   MSJS.push({role:'user',content:'Prepárame la exposición del caso para jefaturas y gerencia.'});
