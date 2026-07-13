@@ -68,13 +68,52 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
 .stat .l{font:600 11px 'Inter';color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
 .disc{margin-top:22px;border:1px dashed var(--lineS);border-radius:11px;padding:12px 14px;background:rgba(184,119,31,.05);font:400 12px 'Inter';color:var(--soft)}
 #view{display:none}
+/* ---- login alucinante ---- */
+.lgwrap{position:relative;width:132px;height:132px;margin:0 auto;display:grid;place-items:center}
+.lgwrap img{position:relative;z-index:2}
+.lg-ring{position:absolute;inset:0;border-radius:30px;border:2px dashed rgba(47,197,122,.55);animation:lgspin 14s linear infinite}
+.lg-ring2{position:absolute;inset:-9px;border-radius:36px;border:1.5px solid rgba(47,197,122,.22);animation:lgspin 22s linear infinite reverse}
+.lg-gear{position:absolute;top:-14px;right:-14px;font-size:30px;z-index:3;animation:lgspin 6s linear infinite;filter:drop-shadow(0 0 8px rgba(47,197,122,.6))}
+.lg-gear2{position:absolute;bottom:-10px;left:-12px;font-size:20px;z-index:3;animation:lgspin 9s linear infinite reverse;opacity:.85}
+@keyframes lgspin{to{transform:rotate(360deg)}}
+.lg-glow{position:absolute;inset:-26px;border-radius:50%;background:radial-gradient(circle,rgba(47,197,122,.28),transparent 65%);animation:lgpulse 2.6s ease-in-out infinite;z-index:1}
+@keyframes lgpulse{0%,100%{opacity:.5;transform:scale(.94)}50%{opacity:1;transform:scale(1.06)}}
+.lg-title{background:linear-gradient(90deg,#e7eaf2 30%,#2fc57a 50%,#e7eaf2 70%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:lgshine 3.5s linear infinite}
+@keyframes lgshine{to{background-position:-200% 0}}
+.lg-part{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(47,197,122,.7);animation:lgfloat linear infinite;pointer-events:none}
+@keyframes lgfloat{0%{transform:translateY(15vh);opacity:0}12%{opacity:.9}88%{opacity:.9}100%{transform:translateY(-92vh);opacity:0}}
+.lg-gearbtn{display:inline-block;animation:lgspin 1.1s linear infinite}
+/* ---- pulido general ---- */
+.card{animation:fadeUp .32s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stat .s{transition:transform .15s ease,border-color .15s ease}
+.stat .s:hover{transform:translateY(-3px);border-color:var(--green)}
+.stat .n{color:var(--green)}
+nav button{transition:all .15s ease}
+nav button:hover{border-color:var(--green);color:var(--ink)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#2a3446;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#39445a}
 </style>
 </head>
 <body>
 <div class="login" id="login" style="display:none;position:fixed;inset:0;z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:28px 12px;background:radial-gradient(900px 500px at 50% -10%,rgba(47,197,122,.25),transparent 70%),radial-gradient(700px 400px at 90% 110%,rgba(163,177,196,.12),transparent 70%),#0b0d12">
+  <span class="lg-part" style="left:8%;animation-duration:9s;animation-delay:0s"></span>
+  <span class="lg-part" style="left:22%;animation-duration:13s;animation-delay:2s;width:4px;height:4px"></span>
+  <span class="lg-part" style="left:38%;animation-duration:10s;animation-delay:5s"></span>
+  <span class="lg-part" style="left:60%;animation-duration:15s;animation-delay:1s;width:6px;height:6px"></span>
+  <span class="lg-part" style="left:76%;animation-duration:11s;animation-delay:4s"></span>
+  <span class="lg-part" style="left:90%;animation-duration:14s;animation-delay:7s;width:4px;height:4px"></span>
   <div style="width:min(92vw,380px);margin:auto;max-height:92vh;max-height:calc(100dvh - 36px);overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)">
-    <div style="text-align:center"><img src="logo.png" alt="logo" style="width:100px;height:100px;border-radius:22px;object-fit:cover" onerror="this.style.display='none'"></div>
-    <h2 style="font:700 20px 'Spectral',serif;margin:14px 0 4px;text-align:center"><b>Sistema de Investigación de Casos</b></h2>
+    <div class="lgwrap">
+      <div class="lg-glow"></div>
+      <div class="lg-ring"></div>
+      <div class="lg-ring2"></div>
+      <span class="lg-gear">⚙️</span>
+      <span class="lg-gear2">⚙️</span>
+      <img src="logo.png" alt="logo" style="width:100px;height:100px;border-radius:22px;object-fit:cover" onerror="this.style.display='none'">
+    </div>
+    <h2 class="lg-title" style="font:700 20px 'Spectral',serif;margin:14px 0 4px;text-align:center"><b>Sistema de Investigación de Casos</b></h2>
     <p style="font:400 13px 'Inter';color:var(--soft);margin:0 0 16px;text-align:center">Investigación laboral con IA</p>
     <div id="lg_form">
     <label>Usuario</label><input id="lg_usuario" placeholder="jtimoteo" autocomplete="username" onkeydown="if(event.key==='Enter')hacerLogin()">
@@ -167,6 +206,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
     </div>
     <div class="card" id="view"></div>
     <input type="file" id="evFile" multiple accept="image/*,application/pdf,.doc,.docx" style="display:none" onchange="evFileSel(this)">
+    <input type="file" id="evCam" accept="image/*" capture="environment" style="display:none" onchange="evFileSel(this)">
   </section>
 
   <!-- NUEVO -->
@@ -210,6 +250,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
       <div class="fld" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <button class="btn ghost" type="button" onclick="document.getElementById('a_file').click()">📎 Adjuntar informe (PDF / foto / Word)</button>
         <input type="file" id="a_file" accept="application/pdf,image/*,.doc,.docx" style="display:none" onchange="archivoSel(this)">
+        <button class="btn ghost" type="button" onclick="document.getElementById('a_cam').click()">📸 Tomar foto</button>
+        <input type="file" id="a_cam" accept="image/*" capture="environment" style="display:none" onchange="archivoSel(this)">
         <span id="a_chip" class="hint" style="display:none;font-weight:600;color:var(--greenD)"></span>
         <button id="a_quitar" class="pill" style="display:none" type="button" onclick="quitarArchivo()">✕ quitar</button>
       </div>
@@ -289,7 +331,7 @@ function esJoel(){return /joel|jtimoteo/i.test(USUARIO);}
 async function hacerLogin(){
   const u=g('lg_usuario'),c=g('lg_clave');
   if(!u||!c){aviso('Completa usuario y contraseña.');return;}
-  const b=document.getElementById('lg_btn');b.disabled=true;b.textContent='Verificando…';
+  const b=document.getElementById('lg_btn');b.disabled=true;b.innerHTML='<span class="lg-gearbtn">⚙️</span> Verificando…';
   try{
     const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion:'login',usuario:u,clave:c})});
     const j=await r.json();
@@ -300,7 +342,7 @@ async function hacerLogin(){
     document.getElementById('login').style.display='none';
     bienvenida();cargarCasos();
   }catch(e){aviso(e.message);}
-  finally{b.disabled=false;b.textContent='Ingresar';}
+  finally{b.disabled=false;b.innerHTML='Ingresar';}
 }
 function salir(){localStorage.removeItem('rl_user');localStorage.removeItem('rl_token');USUARIO='';TOKEN='';location.reload();}
 function bienvenida(){
@@ -539,6 +581,7 @@ async function verCaso(codigo){
        '<div id="evList"><p class="hint">Cargando evidencias…</p></div>'+
        '<div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
        '<button class="btn ghost" type="button" onclick="subirEvidenciaUI(\''+esc(codigo)+'\')">📤 Subir evidencias (capturas, declaraciones, PDF, Word)</button>'+
+       '<button class="btn ghost" type="button" onclick="tomarFotoEvidencia(\''+esc(codigo)+'\')">📸 Tomar foto</button>'+
        '<span id="evMsg" class="hint">Hasta 15 MB por archivo · puedes elegir varios</span></div>';
     v.innerHTML=h;
     cargarEvidencias(codigo);
@@ -561,6 +604,7 @@ async function cargarEvidencias(codigo){
   }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+' <span class="hint">(¿instalaste el backend de evidencias?)</span></p>';}
 }
 function subirEvidenciaUI(codigo){EV_CODIGO=codigo;document.getElementById('evFile').click();}
+function tomarFotoEvidencia(codigo){EV_CODIGO=codigo;document.getElementById('evCam').click();}
 async function evFileSel(inp){
   const files=Array.from(inp.files||[]);inp.value='';
   if(!files.length||!EV_CODIGO)return;
