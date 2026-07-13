@@ -166,6 +166,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--green);outline-o
       <div id="lista"></div>
     </div>
     <div class="card" id="view"></div>
+    <input type="file" id="evFile" multiple accept="image/*,application/pdf,.doc,.docx" style="display:none" onchange="evFileSel(this)">
   </section>
 
   <!-- NUEVO -->
@@ -533,8 +534,49 @@ async function verCaso(codigo){
       '<p>'+esc(c.descripcion_corta||'')+'</p>';
     if(ev){h+='<hr style="border:none;border-top:1px solid var(--line);margin:14px 0">'+renderEval(ev,true);}
     else h+='<p class="hint">Sin análisis todavía. Ve a ⚖️ Analizar con el código '+esc(codigo)+'.</p>';
+    h+='<hr style="border:none;border-top:1px solid var(--line);margin:14px 0">'+
+       '<p class="eyebrow">📎 Evidencias del expediente</p>'+
+       '<div id="evList"><p class="hint">Cargando evidencias…</p></div>'+
+       '<div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
+       '<button class="btn ghost" type="button" onclick="subirEvidenciaUI(\''+esc(codigo)+'\')">📤 Subir evidencias (capturas, declaraciones, PDF, Word)</button>'+
+       '<span id="evMsg" class="hint">Hasta 15 MB por archivo · puedes elegir varios</span></div>';
     v.innerHTML=h;
+    cargarEvidencias(codigo);
   }catch(e){v.innerHTML='<p class="err">'+esc(e.message)+'</p>';}
+}
+
+// ---- EVIDENCIAS DEL EXPEDIENTE ----
+let EV_CODIGO=null;
+async function cargarEvidencias(codigo){
+  const box=document.getElementById('evList');if(!box)return;
+  try{
+    const evs=await api({accion:'listarEvidencias',codigo});
+    if(!evs||!evs.length){box.innerHTML='<p class="hint">Sin evidencias aún. Sube la primera con el botón de abajo.</p>';return;}
+    box.innerHTML=evs.map(f=>{
+      const ico=/pdf/i.test(f.mime||'')?'📄':(/word|officedocument|msword/i.test(f.mime||'')?'📝':'🖼️');
+      return '<div class="persona" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+ico+
+        ' <a href="'+esc(f.url)+'" target="_blank" rel="noopener" style="color:var(--green);font-weight:600;flex:1;min-width:180px;word-break:break-all">'+esc(f.nombre)+'</a>'+
+        '<span class="hint">'+esc(f.subido_por||'')+(f.fecha?' · '+esc(f.fecha):'')+'</span></div>';
+    }).join('');
+  }catch(e){box.innerHTML='<p class="err">'+esc(e.message)+' <span class="hint">(¿instalaste el backend de evidencias?)</span></p>';}
+}
+function subirEvidenciaUI(codigo){EV_CODIGO=codigo;document.getElementById('evFile').click();}
+async function evFileSel(inp){
+  const files=Array.from(inp.files||[]);inp.value='';
+  if(!files.length||!EV_CODIGO)return;
+  const msg=document.getElementById('evMsg');let errores=0;
+  for(const f of files){
+    if(f.size>15*1024*1024){errores++;continue;}
+    if(msg)msg.innerHTML='<span class="hint">⏳ Subiendo '+esc(f.name)+'…</span>';
+    try{
+      const b64=await new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>res(rd.result.split(',')[1]);rd.onerror=rej;rd.readAsDataURL(f);});
+      await api({accion:'subirEvidencia',codigo:EV_CODIGO,nombre:f.name,mime:f.type||'application/octet-stream',base64:b64,usuario:USUARIO||'web'});
+    }catch(e){errores++;}
+  }
+  if(msg)msg.innerHTML=errores
+    ?'<span class="err">⚠️ '+errores+' archivo(s) no se subieron (revisa tamaño o backend).</span>'
+    :'<span class="ok">✅ Evidencia(s) guardadas en el expediente.</span>';
+  cargarEvidencias(EV_CODIGO);
 }
 
 // ---- NUEVO ----
